@@ -17,8 +17,8 @@ To set up the plugin:
 			hasAction = true,
 			alertAction = "Check It Out!",
 			badge = 12,
-			timeInterval = {seconds =5,minutes=1,hours=1,days=1}, 	--Notification will be fired after the specified interval
-			--time = "2012-06-05 20:42:32 +0530",					--Notification will be fired AT the specified time
+			timeInterval = {seconds =5,minutes=1,hours=1,days=1}, 
+			--time = "2012-06-05 20:42:32 +0530",
 			}
 4.	In Gideros Studio, under Player Menu > Player Settings, untick Localhost, and enter the IP address on your iPhone (wireless connection is needed)
 5.	Run the program in Gideros Studio.
