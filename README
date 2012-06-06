@@ -23,3 +23,14 @@ To set up the plugin:
 4.	In Gideros Studio, under Player Menu > Player Settings, untick Localhost, and enter the IP address on your iPhone (wireless connection is needed)
 5.	Run the program in Gideros Studio.
 6.	You should have both the debug console open in Xcode, and the Output console in Gideros Studio. Messages from the plugin will be printed in the Xcode console, and messages from Lua will be printed in the Gideros Studio console
+
+
+
+----_AVAILABLE FUNCTIONS-------
+
+notifications.cancelLocalNotification 
+notifications.cancelAllLocalNotifications
+notifications.getBadgeNumber
+notifications.setBadgeNumber
+notifications.scheduleLocalNotification
+notifications.getScheduledLocalNotifications

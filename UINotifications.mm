@@ -38,7 +38,15 @@
  --time = "2012-06-05 20:42:32 +0530",					--Notification will be fired AT the specified time
  }
  
- -----USAGE------
+ 
+ -----OTHER FUNCTIONS------
+
+notifications.cancelLocalNotification 
+notifications.cancelAllLocalNotifications
+notifications.getBadgeNumber
+notifications.setBadgeNumber
+notifications.getScheduledLocalNotifications
+
  
  */
 
