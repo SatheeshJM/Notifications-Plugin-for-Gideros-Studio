@@ -1,49 +1,52 @@
 
 /******************************************************************************
-    * Copyright (C) 2012 SatheeshJM.  All rights reserved.
-    *
-    * Permission is hereby granted, free of charge, to any person obtaining
-    * a copy of this software and associated documentation files (the
-    * "Software"), to deal in the Software without restriction, including
-    * without limitation the rights to use, copy, modify, merge, publish,
-    * distribute, sublicense, and/or sell copies of the Software, and to
-    * permit persons to whom the Software is furnished to do so, subject to
-    * the following conditions:
-    *
-    * The above copyright notice and this permission notice shall be
-    * included in all copies or substantial portions of the Software.
-    *
-    * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    ******************************************************************************/
-	
+ * Copyright (C) 2012 SatheeshJM.  All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ******************************************************************************/
+
 /*
+ 
+ -----USAGE------
+ 
+ require "notifications";
+ 
+ notifications.scheduleLocalNotification
+ {
+ alertBody = "Hello Gideros!!",
+ hasAction = true,
+ alertAction = "Check It Out!",
+ badge = 12,
+ timeInterval = {seconds =5,minutes=1,hours=1,days=1}, 	--Notification will be fired after the specified interval
+ --time = "2012-06-05 20:42:32 +0530",					--Notification will be fired AT the specified time
+ }
+ 
+ -----USAGE------
+ 
+ */
 
------USAGE------
 
-require "notifications";
 
-notifications.scheduleLocalNotification
-{
-alertBody = "Hello Gideros!!",
-hasAction = true,
-alertAction = "Check It Out!",
-badge = 12,
-timeInterval = {seconds =5,minutes=1,hours=1,days=1}, 	--Notification will be fired after the specified interval
---time = "2012-06-05 20:42:32 +0530",					--Notification will be fired AT the specified time
-}
-
------USAGE------
-
-*/
-	
 
 #include "gideros.h"
+
 
 
 
@@ -143,6 +146,10 @@ NSMutableDictionary* luaTableToDictionary(lua_State* L,int stack_index)
                 value = dict; 
                 break;
             }
+            default : {
+                lua_pop(L, 1);
+                continue;
+            }
         }
         [dict setObject:value forKey:key];
         lua_pop(L, 1);
@@ -155,7 +162,68 @@ NSMutableDictionary* luaTableToDictionary(lua_State* L,int stack_index)
 
 
 
+static int getScheduledLocalNotifications(lua_State *L)
+{
+    NSArray* notifications = [UIApplication sharedApplication].scheduledLocalNotifications;
+   
+    
+    lua_newtable(L);
+    
+    int i=0;
+    for (id object in notifications)
+    {
+        i=i+1;
 
+        //STACK {   table   }
+        
+        lua_pushnumber(L,i);
+         //STACK {  table   key     } 
+        
+        lua_pushlightuserdata(L,object);
+         //STACK {  table   key     value   }
+        
+        lua_settable(L,1);
+    }
+    
+    return 1;
+    
+}
+
+
+static int cancelAllLocalNotifications(lua_State *L)
+{
+    [[UIApplication sharedApplication] cancelAllLocalNotifications ];
+    return 0;
+}
+
+
+
+
+static int cancelLocalNotification(lua_State *L)
+{
+    const void* value = lua_topointer(L,1);  
+    UILocalNotification* notify = (UILocalNotification*)value;
+    
+    [[UIApplication sharedApplication] cancelLocalNotification:notify ];
+    
+    return 0;
+}
+
+
+static int getBadgeNumber(lua_State *L)
+{
+    int badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
+    lua_pushnumber(L,badge);
+    return 1;
+}
+
+
+static int setBadgeNumber(lua_State *L)
+{
+    int badge = lua_tonumber(L,1);
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:badge ];
+    return 0;
+}
 
 
 static int scheduleLocalNotification(lua_State *L)
@@ -207,7 +275,10 @@ static int scheduleLocalNotification(lua_State *L)
     
     [[UIApplication sharedApplication] scheduleLocalNotification:notify];
     
-    return 0;
+    
+    lua_pushlightuserdata(L, notify);
+    
+    return 1;
 }
 
 
@@ -217,6 +288,11 @@ static int loader(lua_State *L)
     
     const luaL_Reg functionlist[] = {
         {"scheduleLocalNotification", scheduleLocalNotification},
+        {"cancelLocalNotification",cancelLocalNotification},
+        {"cancelAllLocalNotifications",cancelAllLocalNotifications},
+        {"getBadgeNumber",getBadgeNumber},
+        {"setBadgeNumber",setBadgeNumber},
+        {"getScheduledLocalNotifications",getScheduledLocalNotifications},
         {NULL, NULL},
     };
     luaL_register(L, "notifications", functionlist);
